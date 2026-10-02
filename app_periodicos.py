@@ -1,4 +1,4 @@
-
+import streamlit as st
 from datetime import date
 
 st.set_page_config(
@@ -300,3 +300,142 @@ periodicos = [
     {"nombre":"elEconomista", "categoria":"Economía", "pais":"España", "url":"https://www.eleconomista.es/", "dominio":"eleconomista.es"},
     {"nombre":"EL CONFIDENCIAL", "categoria":"General", "pais":"España", "url":"https://www.elconfidencial.com/", "dominio":"elconfidencial.com"},
     {"nombre":"¡HOLA!", "categoria":"Corazón y entretenimiento", "pais":"España", "url":"https://www.hola.com/", "dominio":"hola.com"},
+    {"nombre":"Diez Minutos", "categoria":"Corazón y entretenimiento", "pais":"España", "url":"https://www.diezminutos.es/", "dominio":"diezminutos.es"},
+    {"nombre":"Lecturas", "categoria":"Corazón y entretenimiento", "pais":"España", "url":"https://www.lecturas.com/", "dominio":"lecturas.com"},
+    {"nombre":"Semana", "categoria":"Corazón y entretenimiento", "pais":"España", "url":"https://www.semana.es/", "dominio":"semana.es"},
+    # PORTUGAL
+    {"nombre":"Público", "categoria":"General", "pais":"Portugal", "url":"https://www.publico.pt/", "dominio":"publico.pt"},
+    {"nombre":"Expresso", "categoria":"Política y actualidad", "pais":"Portugal", "url":"https://expresso.pt/", "dominio":"expresso.pt"},
+    {"nombre":"Observador", "categoria":"Política y actualidad", "pais":"Portugal", "url":"https://observador.pt/", "dominio":"observador.pt"},
+    {"nombre":"Jornal de Notícias", "categoria":"General", "pais":"Portugal", "url":"https://www.jn.pt/", "dominio":"jn.pt"},
+    {"nombre":"Diário de Notícias", "categoria":"General", "pais":"Portugal", "url":"https://www.dn.pt/", "dominio":"dn.pt"},
+    {"nombre":"Jornal de Negócios", "categoria":"Economía", "pais":"Portugal", "url":"https://www.jornaldenegocios.pt/", "dominio":"jornaldenegocios.pt"},
+    {"nombre":"A Bola", "categoria":"Deportes", "pais":"Portugal", "url":"https://www.abola.pt/", "dominio":"abola.pt"},
+    {"nombre":"Record", "categoria":"Deportes", "pais":"Portugal", "url":"https://www.record.pt/", "dominio":"record.pt"},
+    # REINO UNIDO
+    {"nombre":"BBC News", "categoria":"General", "pais":"Reino Unido", "url":"https://www.bbc.com/news", "dominio":"bbc.com"},
+    {"nombre":"The Guardian", "categoria":"General", "pais":"Reino Unido", "url":"https://www.theguardian.com/uk", "dominio":"theguardian.com"},
+    {"nombre":"The Telegraph", "categoria":"Política y actualidad", "pais":"Reino Unido", "url":"https://www.telegraph.co.uk/", "dominio":"telegraph.co.uk"},
+    {"nombre":"Financial Times", "categoria":"Economía", "pais":"Reino Unido", "url":"https://www.ft.com/", "dominio":"ft.com"},
+    {"nombre":"The Times", "categoria":"General", "pais":"Reino Unido", "url":"https://www.thetimes.com/", "dominio":"thetimes.com"},
+    {"nombre":"The Independent", "categoria":"General", "pais":"Reino Unido", "url":"https://www.independent.co.uk/", "dominio":"independent.co.uk"},
+    # ESTADOS UNIDOS
+    {"nombre":"The New York Times", "categoria":"General", "pais":"Estados Unidos", "url":"https://www.nytimes.com/", "dominio":"nytimes.com"},
+    {"nombre":"The Washington Post", "categoria":"Política y actualidad", "pais":"Estados Unidos", "url":"https://www.washingtonpost.com/", "dominio":"washingtonpost.com"},
+    {"nombre":"The Wall Street Journal", "categoria":"Economía", "pais":"Estados Unidos", "url":"https://www.wsj.com/", "dominio":"wsj.com"},
+    {"nombre":"USA Today", "categoria":"General", "pais":"Estados Unidos", "url":"https://www.usatoday.com/", "dominio":"usatoday.com"},
+    {"nombre":"Los Angeles Times", "categoria":"General", "pais":"Estados Unidos", "url":"https://www.latimes.com/", "dominio":"latimes.com"},
+    {"nombre":"The Washington Times", "categoria":"Política y actualidad", "pais":"Estados Unidos", "url":"https://www.washingtontimes.com/", "dominio":"washingtontimes.com"},
+    # BRASIL
+    {"nombre":"Folha de S.Paulo", "categoria":"General", "pais":"Brasil", "url":"https://www.folha.uol.com.br/", "dominio":"folha.uol.com.br"},
+    {"nombre":"O Globo", "categoria":"General", "pais":"Brasil", "url":"https://oglobo.globo.com/", "dominio":"oglobo.globo.com"},
+    {"nombre":"Estadão", "categoria":"General", "pais":"Brasil", "url":"https://www.estadao.com.br/", "dominio":"estadao.com.br"},
+    {"nombre":"Valor Econômico", "categoria":"Economía", "pais":"Brasil", "url":"https://valor.globo.com/", "dominio":"valor.globo.com"},
+    {"nombre":"Lance!", "categoria":"Deportes", "pais":"Brasil", "url":"https://www.lance.com.br/", "dominio":"lance.com.br"},
+]
+
+paises = sorted({p["pais"] for p in periodicos})
+categorias = sorted({p["categoria"] for p in periodicos})
+
+# Estado: por defecto todo seleccionado.
+if "f_paises_prensa" not in st.session_state:
+    st.session_state.f_paises_prensa = paises.copy()
+if "f_categorias_prensa" not in st.session_state:
+    st.session_state.f_categorias_prensa = categorias.copy()
+
+# Mantener el estado válido si se actualiza el catálogo.
+st.session_state.f_paises_prensa = [p for p in st.session_state.f_paises_prensa if p in paises]
+st.session_state.f_categorias_prensa = [c for c in st.session_state.f_categorias_prensa if c in categorias]
+
+# ============================================================
+# CABECERA
+# ============================================================
+DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+hoy = date.today()
+fecha_hoy = f"{DIAS[hoy.weekday()]}, {hoy.day} de {MESES[hoy.month - 1]} de {hoy.year}"
+
+st.markdown('<div class="saludo">Hola Madre, tu prensa diaria te está esperando</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="fecha">{fecha_hoy}</div>', unsafe_allow_html=True)
+st.markdown('<div class="titulo">📰 Mis periódicos</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitulo">Acceso directo a tu prensa favorita</div>', unsafe_allow_html=True)
+
+# ============================================================
+# FILTROS: están EN LA PÁGINA, no dependen de la sidebar.
+# Esto evita que desaparezcan en móvil.
+# ============================================================
+with st.expander("🔎  Filtros de prensa", expanded=False):
+    st.caption("Puedes abrir este botón en cualquier momento, incluso después de dejar todos los filtros vacíos.")
+
+    seleccion_paises = st.multiselect(
+        "País",
+        paises,
+        default=st.session_state.f_paises_prensa,
+        key="selector_paises_prensa_movil",
+        placeholder="Selecciona países",
+    )
+    seleccion_categorias = st.multiselect(
+        "Tipo de prensa",
+        categorias,
+        default=st.session_state.f_categorias_prensa,
+        key="selector_categorias_prensa_movil",
+        placeholder="Selecciona tipos de prensa",
+    )
+
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("Mostrar todos", use_container_width=True, key="todos_movil"):
+            st.session_state.f_paises_prensa = paises.copy()
+            st.session_state.f_categorias_prensa = categorias.copy()
+            st.rerun()
+    with c2:
+        if st.button("Limpiar filtros", use_container_width=True, key="limpiar_movil"):
+            st.session_state.f_paises_prensa = []
+            st.session_state.f_categorias_prensa = []
+            st.rerun()
+
+# Guardar selección actual para que sobreviva a reruns.
+st.session_state.f_paises_prensa = seleccion_paises
+st.session_state.f_categorias_prensa = seleccion_categorias
+
+filtrados = [
+    p for p in periodicos
+    if p["pais"] in seleccion_paises and p["categoria"] in seleccion_categorias
+]
+
+# Si todos los filtros están puestos, orden alfabético.
+todos_los_paises = set(seleccion_paises) == set(paises)
+todas_las_categorias = set(seleccion_categorias) == set(categorias)
+if todos_los_paises and todas_las_categorias:
+    filtrados = sorted(filtrados, key=lambda p: p["nombre"].casefold())
+
+st.markdown(f'<div class="contador">{len(filtrados)} publicaciones disponibles</div>', unsafe_allow_html=True)
+
+# ============================================================
+# TARJETAS: grid que pasa automáticamente a 1 columna en móvil
+# ============================================================
+if not filtrados:
+    st.markdown(
+        '<div class="sin-resultados"><strong>No hay periódicos seleccionados.</strong><br>'
+        'Pulsa <strong>🔎 Filtros de prensa</strong> para volver a elegir países y tipos de prensa.</div>',
+        unsafe_allow_html=True,
+    )
+else:
+    cards = []
+    for p in filtrados:
+        logo = f"https://www.google.com/s2/favicons?domain={p['dominio']}&sz=128"
+        cards.append(
+            f'''<div class="periodico-card">
+                <span class="pais-tag">{p['pais']}</span>
+                <div class="logo-wrap">
+                    <img src="{logo}" alt="Logo de {p['nombre']}" loading="lazy">
+                </div>
+                <div class="nombre-periodico">{p['nombre']}</div>
+                <div class="categoria">{p['categoria']}</div>
+                <a class="boton" href="{p['url']}" target="_blank" rel="noopener noreferrer">Abrir periódico</a>
+            </div>'''
+        )
+
+    st.markdown('<div class="periodicos-grid">' + ''.join(cards) + '</div>', unsafe_allow_html=True)
+
+st.caption("Los enlaces llevan a las páginas web oficiales de cada medio. La clasificación es una categorización práctica por temática principal.")
