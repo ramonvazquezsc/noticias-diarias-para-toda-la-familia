@@ -17,9 +17,14 @@ st.markdown(
         background: #f4f5f8;
     }
 
+    /* Oculta la barra superior de Streamlit para aprovechar toda la pantalla */
+    header[data-testid="stHeader"] {
+        display: none;
+    }
+
     .block-container {
         max-width: 1050px;
-        padding-top: 1.2rem;
+        padding-top: 1.0rem;
         padding-bottom: 2rem;
     }
 
@@ -93,7 +98,7 @@ st.markdown(
 
     @media (max-width: 700px) {
         .block-container {
-            padding: .9rem .7rem 1.5rem .7rem;
+            padding: .8rem .7rem 1.5rem .7rem;
         }
 
         .titulo {
