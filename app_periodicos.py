@@ -357,6 +357,13 @@ filtrados = [
     if p["pais"] in seleccion_paises and p["categoria"] in seleccion_categorias
 ]
 
+# Cuando están seleccionados todos los países y todas las categorías,
+# mostramos la prensa en orden alfabético por nombre.
+todos_los_paises = set(seleccion_paises) == set(paises)
+todas_las_categorias = set(seleccion_categorias) == set(categorias)
+if todos_los_paises and todas_las_categorias:
+    filtrados = sorted(filtrados, key=lambda p: p["nombre"].casefold())
+
 # -----------------------------
 # Cabecera dinámica
 # -----------------------------
