@@ -14,56 +14,96 @@ st.markdown(
     """
     <style>
     .stApp {
-        background: #f4f5f8;
+        background: #eef0f4;
+        position: relative;
     }
 
-    /* Oculta la barra superior de Streamlit para aprovechar toda la pantalla */
+    /* Fondo urbano difuminado */
+    .stApp::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background-image:
+            linear-gradient(rgba(18, 25, 38, .48), rgba(18, 25, 38, .62)),
+            url("https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=2200&q=80");
+        background-size: cover;
+        background-position: center;
+        filter: blur(5px);
+        transform: scale(1.04);
+        pointer-events: none;
+    }
+
+    .stApp > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Oculta la barra superior de Streamlit */
     header[data-testid="stHeader"] {
         display: none;
     }
 
     .block-container {
-        max-width: 1050px;
-        padding-top: 1.0rem;
-        padding-bottom: 2rem;
+        max-width: 1100px;
+        padding-top: 1.4rem;
+        padding-bottom: 2.5rem;
     }
 
     .saludo {
+        display: inline-block;
         font-size: 1.65rem;
-        font-weight: 750;
-        color: #20242d;
-        margin-bottom: .15rem;
+        font-weight: 800;
+        color: #ffffff;
+        background: rgba(16, 22, 34, .58);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 18px;
+        padding: 12px 18px;
+        margin-bottom: .35rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,.18);
     }
 
     .fecha {
-        color: #6b7280;
-        font-size: .98rem;
-        margin-bottom: 1rem;
+        color: #f4f6f8;
+        font-size: 1rem;
+        font-weight: 600;
+        margin: .15rem 0 1.15rem .25rem;
         text-transform: capitalize;
+        text-shadow: 0 1px 8px rgba(0,0,0,.35);
     }
 
     .titulo {
-        font-size: 2.1rem;
-        font-weight: 750;
-        color: #20242d;
+        font-size: 2.25rem;
+        font-weight: 850;
+        color: #ffffff;
+        text-shadow: 0 2px 14px rgba(0,0,0,.38);
         margin-bottom: .2rem;
     }
 
     .subtitulo {
-        color: #6b7280;
+        color: rgba(255,255,255,.88);
         font-size: 1rem;
-        margin-bottom: 1.2rem;
+        margin-bottom: 1.05rem;
+        text-shadow: 0 1px 8px rgba(0,0,0,.3);
     }
 
     .periodico-card {
-        background: white;
-        border: 1px solid #e2e5ea;
-        border-radius: 18px;
+        background: rgba(255,255,255,.94);
+        border: 1px solid rgba(255,255,255,.72);
+        border-radius: 22px;
         padding: 18px 16px 16px 16px;
-        min-height: 205px;
-        box-shadow: 0 2px 8px rgba(0,0,0,.05);
-        margin-bottom: 12px;
+        min-height: 215px;
+        box-shadow: 0 14px 35px rgba(0,0,0,.18);
+        margin-bottom: 15px;
         text-align: center;
+        transition: transform .15s ease, box-shadow .15s ease;
+    }
+
+    .periodico-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 40px rgba(0,0,0,.24);
     }
 
     .logo-wrap {
@@ -78,11 +118,12 @@ st.markdown(
         max-width: 170px;
         max-height: 72px;
         object-fit: contain;
+        image-rendering: auto;
     }
 
     .nombre-periodico {
         font-size: 1.08rem;
-        font-weight: 700;
+        font-weight: 800;
         color: #20242d;
         margin: 4px 0 2px 0;
     }
@@ -95,18 +136,25 @@ st.markdown(
 
     .pais-tag {
         display: inline-block;
-        background: #f0f2f5;
-        color: #626a76;
+        background: #eef1f5;
+        color: #596273;
         border-radius: 999px;
-        padding: 3px 9px;
+        padding: 4px 10px;
         font-size: .72rem;
+        font-weight: 700;
         margin-bottom: 5px;
     }
 
     .contador {
-        color: #6b7280;
+        display: inline-block;
+        color: #ffffff;
+        background: rgba(16,22,34,.48);
+        border: 1px solid rgba(255,255,255,.14);
+        border-radius: 999px;
+        padding: 6px 11px;
         font-size: .84rem;
         margin: 0 0 .8rem .1rem;
+        backdrop-filter: blur(8px);
     }
 
     .boton {
@@ -114,19 +162,37 @@ st.markdown(
         width: 100%;
         box-sizing: border-box;
         padding: 10px 12px;
-        border-radius: 10px;
-        background: #20242d;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #20242d, #394150);
         color: white !important;
         text-decoration: none !important;
-        font-weight: 650;
+        font-weight: 700;
         font-size: .94rem;
+        box-shadow: 0 5px 12px rgba(0,0,0,.14);
     }
 
     .boton:hover {
-        background: #111318;
+        background: linear-gradient(135deg, #111318, #29303c);
+    }
+
+    /* Barra lateral con efecto cristal */
+    section[data-testid="stSidebar"] {
+        background: rgba(248,249,252,.92);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-right: 1px solid rgba(255,255,255,.5);
+    }
+
+    section[data-testid="stSidebar"] h2 {
+        color: #20242d;
     }
 
     @media (max-width: 700px) {
+        .stApp::before {
+            background-position: 60% center;
+            filter: blur(4px);
+        }
+
         .block-container {
             padding: .8rem .7rem 1.5rem .7rem;
         }
@@ -202,7 +268,7 @@ periodicos = [
     {"nombre":"EXPANSIÓN", "categoria":"Economía", "pais":"España", "url":"https://www.expansion.com/", "dominio":"expansion.com"},
     {"nombre":"Cinco Días", "categoria":"Economía", "pais":"España", "url":"https://cincodias.elpais.com/", "dominio":"cincodias.elpais.com"},
     {"nombre":"elEconomista", "categoria":"Economía", "pais":"España", "url":"https://www.eleconomista.es/", "dominio":"eleconomista.es"},
-    {"nombre":"EL CONFIDENCIAL", "categoria":"Economía y actualidad", "pais":"España", "url":"https://www.elconfidencial.com/", "dominio":"elconfidencial.com"},
+    {"nombre":"EL CONFIDENCIAL", "categoria":"General", "pais":"España", "url":"https://www.elconfidencial.com/", "dominio":"elconfidencial.com"},
     {"nombre":"¡HOLA!", "categoria":"Corazón y entretenimiento", "pais":"España", "url":"https://www.hola.com/", "dominio":"hola.com"},
     {"nombre":"Diez Minutos", "categoria":"Corazón y entretenimiento", "pais":"España", "url":"https://www.diezminutos.es/", "dominio":"diezminutos.es"},
     {"nombre":"Lecturas", "categoria":"Corazón y entretenimiento", "pais":"España", "url":"https://www.lecturas.com/", "dominio":"lecturas.com"},
@@ -247,14 +313,20 @@ periodicos = [
 # -----------------------------
 if "f_paises_prensa" not in st.session_state:
     st.session_state.f_paises_prensa = sorted({p["pais"] for p in periodicos})
+categorias_disponibles = sorted({p["categoria"] for p in periodicos})
 if "f_categorias_prensa" not in st.session_state:
-    st.session_state.f_categorias_prensa = sorted({p["categoria"] for p in periodicos})
+    st.session_state.f_categorias_prensa = categorias_disponibles
+else:
+    # Elimina selecciones antiguas de categorías que ya no existen.
+    st.session_state.f_categorias_prensa = [
+        c for c in st.session_state.f_categorias_prensa if c in categorias_disponibles
+    ]
 
 with st.sidebar:
     st.markdown("## 📰 Filtros")
     st.caption("Elige qué prensa quieres ver")
     paises = sorted({p["pais"] for p in periodicos})
-    categorias = sorted({p["categoria"] for p in periodicos})
+    categorias = categorias_disponibles
 
     seleccion_paises = st.multiselect(
         "País",
@@ -296,7 +368,7 @@ hoy = date.today()
 fecha_hoy = f"{DIAS[hoy.weekday()]}, {hoy.day} de {MESES[hoy.month - 1]} de {hoy.year}"
 
 st.markdown(
-    f'<div class="saludo">Hola Moncho, tu prensa diaria te está esperando</div>',
+    f'<div class="saludo">Hola Madre, tu prensa diaria te está esperando</div>',
     unsafe_allow_html=True,
 )
 st.markdown(
