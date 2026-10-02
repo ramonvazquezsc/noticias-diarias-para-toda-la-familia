@@ -1,15 +1,16 @@
-import streamlit as st
+
+from datetime import date
 
 st.set_page_config(
     page_title="Mis periódicos",
     page_icon="📰",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
-# -----------------------------
-# Estilo móvil
-# -----------------------------
+# ============================================================
+# ESTILO RESPONSIVE: pensado primero para móvil
+# ============================================================
 st.markdown(
     """
     <style>
@@ -18,14 +19,13 @@ st.markdown(
         position: relative;
     }
 
-    /* Fondo urbano difuminado */
     .stApp::before {
         content: "";
         position: fixed;
         inset: 0;
         z-index: 0;
         background-image:
-            linear-gradient(rgba(18, 25, 38, .48), rgba(18, 25, 38, .62)),
+            linear-gradient(rgba(18,25,38,.48), rgba(18,25,38,.64)),
             url("https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=2200&q=80");
         background-size: cover;
         background-position: center;
@@ -34,104 +34,129 @@ st.markdown(
         pointer-events: none;
     }
 
-    .stApp > * {
-        position: relative;
-        z-index: 1;
+    .stApp > * { position: relative; z-index: 1; }
+
+    /* Dejamos la barra de Streamlit disponible para que el usuario
+       siempre pueda recuperar la interfaz si alguna vez abre la sidebar. */
+    header[data-testid="stHeader"] {
+        background: rgba(12,16,24,.18) !important;
     }
 
-    /* Oculta la barra superior de Streamlit */
-    header[data-testid="stHeader"] {
-        display: none;
+    header[data-testid="stHeader"] button {
+        color: white !important;
     }
 
     .block-container {
-        max-width: 1100px;
-        padding-top: 1.4rem;
-        padding-bottom: 2.5rem;
+        max-width: 1180px;
+        padding: 1.0rem 1.1rem 2.5rem 1.1rem;
     }
 
+    /* Cabecera */
     .saludo {
         display: inline-block;
-        font-size: 1.65rem;
+        max-width: 100%;
+        box-sizing: border-box;
+        font-size: 1.55rem;
+        line-height: 1.25;
         font-weight: 800;
-        color: #ffffff;
-        background: rgba(16, 22, 34, .58);
+        color: #fff;
+        background: rgba(16,22,34,.60);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(255,255,255,.16);
         border-radius: 18px;
-        padding: 12px 18px;
-        margin-bottom: .35rem;
+        padding: 11px 16px;
+        margin: .15rem 0 .35rem 0;
         box-shadow: 0 10px 30px rgba(0,0,0,.18);
     }
 
     .fecha {
         color: #f4f6f8;
-        font-size: 1rem;
+        font-size: .98rem;
         font-weight: 600;
-        margin: .15rem 0 1.15rem .25rem;
+        margin: .1rem 0 .85rem .2rem;
         text-transform: capitalize;
         text-shadow: 0 1px 8px rgba(0,0,0,.35);
     }
 
     .titulo {
         font-size: 2.25rem;
+        line-height: 1.1;
         font-weight: 850;
-        color: #ffffff;
+        color: #fff;
         text-shadow: 0 2px 14px rgba(0,0,0,.38);
         margin-bottom: .2rem;
     }
 
     .subtitulo {
-        color: rgba(255,255,255,.88);
+        color: rgba(255,255,255,.9);
         font-size: 1rem;
-        margin-bottom: 1.05rem;
+        margin-bottom: .75rem;
         text-shadow: 0 1px 8px rgba(0,0,0,.3);
     }
 
-    .periodico-card {
-        background: rgba(255,255,255,.94);
-        border: 1px solid rgba(255,255,255,.72);
-        border-radius: 22px;
-        padding: 18px 16px 16px 16px;
-        min-height: 215px;
-        box-shadow: 0 14px 35px rgba(0,0,0,.18);
-        margin-bottom: 15px;
-        text-align: center;
-        transition: transform .15s ease, box-shadow .15s ease;
+    /* Filtro SIEMPRE accesible desde el contenido principal */
+    div[data-testid="stExpander"] {
+        background: rgba(255,255,255,.93) !important;
+        border: 1px solid rgba(255,255,255,.8) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 10px 28px rgba(0,0,0,.14);
+        margin: .25rem 0 .9rem 0;
+        overflow: hidden;
     }
 
-    .periodico-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 18px 40px rgba(0,0,0,.24);
+    div[data-testid="stExpander"] summary {
+        min-height: 52px;
+    }
+
+    /* Tarjetas responsive */
+    .periodicos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+        width: 100%;
+        margin-top: .2rem;
+    }
+
+    .periodico-card {
+        background: rgba(255,255,255,.95);
+        border: 1px solid rgba(255,255,255,.75);
+        border-radius: 20px;
+        padding: 16px;
+        min-height: 205px;
+        box-sizing: border-box;
+        box-shadow: 0 14px 35px rgba(0,0,0,.18);
+        text-align: center;
     }
 
     .logo-wrap {
-        height: 82px;
+        height: 72px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 8px;
+        margin: 4px 0 7px 0;
     }
 
     .logo-wrap img {
-        max-width: 170px;
-        max-height: 72px;
+        max-width: 165px;
+        max-height: 62px;
+        width: auto;
+        height: auto;
         object-fit: contain;
-        image-rendering: auto;
     }
 
     .nombre-periodico {
         font-size: 1.08rem;
+        line-height: 1.15;
         font-weight: 800;
         color: #20242d;
-        margin: 4px 0 2px 0;
+        margin: 3px 0 4px 0;
     }
 
     .categoria {
         color: #737985;
-        font-size: .82rem;
-        margin-bottom: 13px;
+        font-size: .8rem;
+        margin-bottom: 11px;
     }
 
     .pais-tag {
@@ -139,26 +164,13 @@ st.markdown(
         background: #eef1f5;
         color: #596273;
         border-radius: 999px;
-        padding: 4px 10px;
-        font-size: .72rem;
+        padding: 4px 9px;
+        font-size: .7rem;
         font-weight: 700;
-        margin-bottom: 5px;
-    }
-
-    .contador {
-        display: inline-block;
-        color: #ffffff;
-        background: rgba(16,22,34,.48);
-        border: 1px solid rgba(255,255,255,.14);
-        border-radius: 999px;
-        padding: 6px 11px;
-        font-size: .84rem;
-        margin: 0 0 .8rem .1rem;
-        backdrop-filter: blur(8px);
     }
 
     .boton {
-        display: inline-block;
+        display: block;
         width: 100%;
         box-sizing: border-box;
         padding: 10px 12px;
@@ -167,81 +179,99 @@ st.markdown(
         color: white !important;
         text-decoration: none !important;
         font-weight: 700;
-        font-size: .94rem;
-        box-shadow: 0 5px 12px rgba(0,0,0,.14);
+        font-size: .92rem;
     }
 
-    .boton:hover {
-        background: linear-gradient(135deg, #111318, #29303c);
+    .contador {
+        display: inline-block;
+        color: #fff;
+        background: rgba(16,22,34,.50);
+        border: 1px solid rgba(255,255,255,.14);
+        border-radius: 999px;
+        padding: 6px 11px;
+        font-size: .83rem;
+        margin: 0 0 .75rem .1rem;
+        backdrop-filter: blur(8px);
     }
 
-    /* Barra lateral con efecto cristal */
-    section[data-testid="stSidebar"] {
-        background: rgba(248,249,252,.92);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        border-right: 1px solid rgba(255,255,255,.5);
-    }
-
-    section[data-testid="stSidebar"] h2 {
-        color: #20242d;
+    .sin-resultados {
+        background: rgba(255,255,255,.94);
+        border-radius: 18px;
+        padding: 18px;
+        color: #303641;
+        box-shadow: 0 10px 25px rgba(0,0,0,.12);
+        text-align: center;
     }
 
     @media (max-width: 700px) {
         .stApp::before {
-            background-position: 60% center;
+            background-position: 62% center;
             filter: blur(4px);
         }
 
         .block-container {
-            padding: .8rem .7rem 1.5rem .7rem;
+            padding: .55rem .65rem 1.6rem .65rem;
         }
 
         .saludo {
-            font-size: 1.35rem;
+            display: block;
+            font-size: 1.18rem;
             line-height: 1.25;
-        }
-
-        .fecha {
-            font-size: .88rem;
-            margin-bottom: .8rem;
-        }
-
-        .titulo {
-            font-size: 1.75rem;
-        }
-
-        .subtitulo {
-            font-size: .92rem;
-            margin-bottom: .9rem;
-        }
-
-        .periodico-card {
-            min-height: 185px;
-            padding: 14px 12px 13px 12px;
+            padding: 10px 12px;
             border-radius: 15px;
         }
 
+        .fecha {
+            font-size: .82rem;
+            margin-bottom: .7rem;
+        }
+
+        .titulo {
+            font-size: 1.72rem;
+        }
+
+        .subtitulo {
+            font-size: .88rem;
+            margin-bottom: .55rem;
+        }
+
+        div[data-testid="stExpander"] {
+            margin-bottom: .75rem;
+        }
+
+        .periodicos-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .periodico-card {
+            min-height: 0;
+            padding: 14px 12px 13px 12px;
+            border-radius: 16px;
+        }
+
         .logo-wrap {
-            height: 65px;
+            height: 62px;
         }
 
         .logo-wrap img {
             max-width: 145px;
-            max-height: 58px;
+            max-height: 54px;
         }
 
         .nombre-periodico {
-            font-size: .98rem;
+            font-size: 1rem;
         }
 
         .categoria {
-            font-size: .76rem;
+            font-size: .75rem;
+            margin-bottom: 9px;
         }
 
         .boton {
+            min-height: 42px;
+            padding: 10px;
             font-size: .9rem;
-            padding: 9px 10px;
         }
     }
     </style>
@@ -249,9 +279,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# -----------------------------
-# Catálogo de prensa
-# -----------------------------
+# ============================================================
+# CATÁLOGO
+# ============================================================
 periodicos = [
     # ESPAÑA
     {"nombre":"MARCA", "categoria":"Deportes", "pais":"España", "url":"https://www.marca.com/", "dominio":"marca.com"},
@@ -270,154 +300,3 @@ periodicos = [
     {"nombre":"elEconomista", "categoria":"Economía", "pais":"España", "url":"https://www.eleconomista.es/", "dominio":"eleconomista.es"},
     {"nombre":"EL CONFIDENCIAL", "categoria":"General", "pais":"España", "url":"https://www.elconfidencial.com/", "dominio":"elconfidencial.com"},
     {"nombre":"¡HOLA!", "categoria":"Corazón y entretenimiento", "pais":"España", "url":"https://www.hola.com/", "dominio":"hola.com"},
-    {"nombre":"Diez Minutos", "categoria":"Corazón y entretenimiento", "pais":"España", "url":"https://www.diezminutos.es/", "dominio":"diezminutos.es"},
-    {"nombre":"Lecturas", "categoria":"Corazón y entretenimiento", "pais":"España", "url":"https://www.lecturas.com/", "dominio":"lecturas.com"},
-    {"nombre":"Semana", "categoria":"Corazón y entretenimiento", "pais":"España", "url":"https://www.semana.es/", "dominio":"semana.es"},
-
-    # PORTUGAL
-    {"nombre":"Público", "categoria":"General", "pais":"Portugal", "url":"https://www.publico.pt/", "dominio":"publico.pt"},
-    {"nombre":"Expresso", "categoria":"Política y actualidad", "pais":"Portugal", "url":"https://expresso.pt/", "dominio":"expresso.pt"},
-    {"nombre":"Observador", "categoria":"Política y actualidad", "pais":"Portugal", "url":"https://observador.pt/", "dominio":"observador.pt"},
-    {"nombre":"Jornal de Notícias", "categoria":"General", "pais":"Portugal", "url":"https://www.jn.pt/", "dominio":"jn.pt"},
-    {"nombre":"Diário de Notícias", "categoria":"General", "pais":"Portugal", "url":"https://www.dn.pt/", "dominio":"dn.pt"},
-    {"nombre":"Jornal de Negócios", "categoria":"Economía", "pais":"Portugal", "url":"https://www.jornaldenegocios.pt/", "dominio":"jornaldenegocios.pt"},
-    {"nombre":"A Bola", "categoria":"Deportes", "pais":"Portugal", "url":"https://www.abola.pt/", "dominio":"abola.pt"},
-    {"nombre":"Record", "categoria":"Deportes", "pais":"Portugal", "url":"https://www.record.pt/", "dominio":"record.pt"},
-
-    # REINO UNIDO
-    {"nombre":"BBC News", "categoria":"General", "pais":"Reino Unido", "url":"https://www.bbc.com/news", "dominio":"bbc.com"},
-    {"nombre":"The Guardian", "categoria":"General", "pais":"Reino Unido", "url":"https://www.theguardian.com/uk", "dominio":"theguardian.com"},
-    {"nombre":"The Telegraph", "categoria":"Política y actualidad", "pais":"Reino Unido", "url":"https://www.telegraph.co.uk/", "dominio":"telegraph.co.uk"},
-    {"nombre":"Financial Times", "categoria":"Economía", "pais":"Reino Unido", "url":"https://www.ft.com/", "dominio":"ft.com"},
-    {"nombre":"The Times", "categoria":"General", "pais":"Reino Unido", "url":"https://www.thetimes.com/", "dominio":"thetimes.com"},
-    {"nombre":"The Independent", "categoria":"General", "pais":"Reino Unido", "url":"https://www.independent.co.uk/", "dominio":"independent.co.uk"},
-
-    # ESTADOS UNIDOS
-    {"nombre":"The New York Times", "categoria":"General", "pais":"Estados Unidos", "url":"https://www.nytimes.com/", "dominio":"nytimes.com"},
-    {"nombre":"The Washington Post", "categoria":"Política y actualidad", "pais":"Estados Unidos", "url":"https://www.washingtonpost.com/", "dominio":"washingtonpost.com"},
-    {"nombre":"The Wall Street Journal", "categoria":"Economía", "pais":"Estados Unidos", "url":"https://www.wsj.com/", "dominio":"wsj.com"},
-    {"nombre":"USA Today", "categoria":"General", "pais":"Estados Unidos", "url":"https://www.usatoday.com/", "dominio":"usatoday.com"},
-    {"nombre":"Los Angeles Times", "categoria":"General", "pais":"Estados Unidos", "url":"https://www.latimes.com/", "dominio":"latimes.com"},
-    {"nombre":"The Washington Times", "categoria":"Política y actualidad", "pais":"Estados Unidos", "url":"https://www.washingtontimes.com/", "dominio":"washingtontimes.com"},
-
-    # BRASIL
-    {"nombre":"Folha de S.Paulo", "categoria":"General", "pais":"Brasil", "url":"https://www.folha.uol.com.br/", "dominio":"folha.uol.com.br"},
-    {"nombre":"O Globo", "categoria":"General", "pais":"Brasil", "url":"https://oglobo.globo.com/", "dominio":"oglobo.globo.com"},
-    {"nombre":"Estadão", "categoria":"General", "pais":"Brasil", "url":"https://www.estadao.com.br/", "dominio":"estadao.com.br"},
-    {"nombre":"Valor Econômico", "categoria":"Economía", "pais":"Brasil", "url":"https://valor.globo.com/", "dominio":"valor.globo.com"},
-    {"nombre":"Lance!", "categoria":"Deportes", "pais":"Brasil", "url":"https://www.lance.com.br/", "dominio":"lance.com.br"},
-]
-
-# -----------------------------
-# Filtros
-# -----------------------------
-if "f_paises_prensa" not in st.session_state:
-    st.session_state.f_paises_prensa = sorted({p["pais"] for p in periodicos})
-categorias_disponibles = sorted({p["categoria"] for p in periodicos})
-if "f_categorias_prensa" not in st.session_state:
-    st.session_state.f_categorias_prensa = categorias_disponibles
-else:
-    # Elimina selecciones antiguas de categorías que ya no existen.
-    st.session_state.f_categorias_prensa = [
-        c for c in st.session_state.f_categorias_prensa if c in categorias_disponibles
-    ]
-
-with st.sidebar:
-    st.markdown("## 📰 Filtros")
-    st.caption("Elige qué prensa quieres ver")
-    paises = sorted({p["pais"] for p in periodicos})
-    categorias = categorias_disponibles
-
-    seleccion_paises = st.multiselect(
-        "País",
-        paises,
-        default=st.session_state.f_paises_prensa,
-        key="selector_paises_prensa",
-    )
-    seleccion_categorias = st.multiselect(
-        "Tipo de prensa",
-        categorias,
-        default=st.session_state.f_categorias_prensa,
-        key="selector_categorias_prensa",
-    )
-
-    st.divider()
-    if st.button("Mostrar todos", use_container_width=True):
-        st.session_state.f_paises_prensa = paises
-        st.session_state.f_categorias_prensa = categorias
-        st.rerun()
-
-    if st.button("Limpiar filtros", use_container_width=True):
-        st.session_state.f_paises_prensa = []
-        st.session_state.f_categorias_prensa = []
-        st.rerun()
-
-filtrados = [
-    p for p in periodicos
-    if p["pais"] in seleccion_paises and p["categoria"] in seleccion_categorias
-]
-
-# Cuando están seleccionados todos los países y todas las categorías,
-# mostramos la prensa en orden alfabético por nombre.
-todos_los_paises = set(seleccion_paises) == set(paises)
-todas_las_categorias = set(seleccion_categorias) == set(categorias)
-if todos_los_paises and todas_las_categorias:
-    filtrados = sorted(filtrados, key=lambda p: p["nombre"].casefold())
-
-# -----------------------------
-# Cabecera dinámica
-# -----------------------------
-from datetime import date
-
-DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
-MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
-hoy = date.today()
-fecha_hoy = f"{DIAS[hoy.weekday()]}, {hoy.day} de {MESES[hoy.month - 1]} de {hoy.year}"
-
-st.markdown(
-    f'<div class="saludo">Hola Madre, tu prensa diaria te está esperando</div>',
-    unsafe_allow_html=True,
-)
-st.markdown(
-    f'<div class="fecha">{fecha_hoy}</div>',
-    unsafe_allow_html=True,
-)
-st.markdown('<div class="titulo">📰 Mis periódicos</div>', unsafe_allow_html=True)
-st.markdown(
-    '<div class="subtitulo">Acceso directo a tu prensa favorita</div>',
-    unsafe_allow_html=True,
-)
-
-st.markdown(
-    f'<div class="contador">{len(filtrados)} publicaciones disponibles</div>',
-    unsafe_allow_html=True,
-)
-
-# -----------------------------
-# Tarjetas
-# -----------------------------
-if not filtrados:
-    st.info("No hay periódicos que coincidan con los filtros seleccionados. Abre la barra lateral y cambia la selección.")
-else:
-    cols = st.columns(2, gap="medium")
-    for i, p in enumerate(filtrados):
-        with cols[i % 2]:
-            logo = f"https://www.google.com/s2/favicons?domain={p['dominio']}&sz=128"
-            st.markdown(
-                f"""
-                <div class="periodico-card">
-                    <div class="pais-tag">{p['pais']}</div>
-                    <div class="logo-wrap">
-                        <img src="{logo}" alt="Logo de {p['nombre']}" loading="lazy">
-                    </div>
-                    <div class="nombre-periodico">{p['nombre']}</div>
-                    <div class="categoria">{p['categoria']}</div>
-                    <a class="boton" href="{p['url']}" target="_blank" rel="noopener noreferrer">
-                        Abrir periódico
-                    </a>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
-st.caption("Los enlaces llevan a las páginas web oficiales de cada medio. La clasificación es una categorización práctica por temática principal.")
