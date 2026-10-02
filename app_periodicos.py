@@ -4,7 +4,7 @@ st.set_page_config(
     page_title="Mis periódicos",
     page_icon="📰",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 # -----------------------------
@@ -342,5 +342,3 @@ else:
             )
 
 st.caption("Los enlaces llevan a las páginas web oficiales de cada medio. La clasificación es una categorización práctica por temática principal.")
-
-
